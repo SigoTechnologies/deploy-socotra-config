@@ -1,7 +1,7 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Deploy Socotra Configuration'
+description: 'Deploy Socotra configuration to production or sandbox environments'
 inputs:
-  username:  # id of input
+  username:
     description: 'Admin username'
     required: true
   password:
@@ -18,7 +18,7 @@ inputs:
     required: true
 outputs:
   hostname:
-    description: 'Deployment log'
+    description: 'Hostname of deployment'
 runs:
   using: 'node12'
   main: 'dist/index.js'
