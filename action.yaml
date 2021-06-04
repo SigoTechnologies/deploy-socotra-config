@@ -1,0 +1,24 @@
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  username:  # id of input
+    description: 'Admin username'
+    required: true
+  password:
+    description: 'Admin password'
+    required: true
+  auth-endpoint: 
+    description: 'Endpoint used for admin authentication'
+    required: true
+  deploy-endpoint:
+    description: 'Endpoint used for deployment'
+    required: true    
+  tenant-name:
+    description: 'Deployment target tenant name (eg. sigo-test or sigo-prod)'
+    required: true
+outputs:
+  hostname:
+    description: 'Deployment log'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
