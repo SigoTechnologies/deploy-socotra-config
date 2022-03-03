@@ -43689,6 +43689,7 @@ class DeploymentManager {
         this.version = core.getInput("version");
     }
     async authenticate() {
+        core.info("Authenticating");
         const adminCredentials = {
             username: this.adminUsername,
             password: this.adminPassword,
@@ -43701,10 +43702,12 @@ class DeploymentManager {
             axios_1.default.post(this.adminAuthEndpoint, adminCredentials),
             axios_1.default.post(this.apiAuthEndpoint, apiCredentials),
         ]);
+        core.info("Authenticated successfully");
         this.adminAuthToken = adminAuthResponse.data.authorizationToken;
         this.apiAuthToken = apiAuthResponse.data.authorizationToken;
     }
     zipDir() {
+        core.info("Zipping configuration");
         return new Promise((resolve, reject) => {
             const fileName = `${Math.floor(Math.random() * 10000000)}-config.zip`;
             const outputPath = path_1.default.join(os_1.default.tmpdir(), fileName);
@@ -43720,7 +43723,11 @@ class DeploymentManager {
         });
     }
     async getAllVersions() {
-        const res = await axios_1.default.get(this.versionsEndpoint);
+        const res = await axios_1.default.get(this.versionsEndpoint, {
+            headers: {
+                Authorization: `Bearer ${this.apiAuthToken}`,
+            },
+        });
         return res.data;
     }
     async deployConfig() {
