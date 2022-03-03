@@ -5,7 +5,6 @@ import FormData from "form-data";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { exec } from "child_process";
 
 interface AuthResponse {
   authorizationToken: string;
@@ -19,69 +18,129 @@ interface DeployResponse {
   tenantName: string;
 }
 
-interface DeployResponse {
-  hostname: string;
-  logfile: string;
-  success: boolean;
-  tenantName: string;
+interface ConfigVersionResponse {
+  version: string;
+  deployedTimestamp: string;
 }
 
-const run = async () => {
-  try {
-    const username = core.getInput("username");
-    const password = core.getInput("password");
-    const authEndpoint = core.getInput("auth-endpoint");
-    const deployEndpoint = core.getInput("deploy-endpoint");
-    const tenantName = core.getInput("tenant-name");
+class DeploymentManager {
+  tenantName: string;
 
-    const authResponse = await axios.post<AuthResponse>(authEndpoint, { username, password });
+  adminAuthEndpoint: string;
+  apiAuthEndpoint: string;
+  deployEndpoint: string;
+  repairEndpoint: string;
+  versionsEndpoint: string;
 
-    core.info("Authentication successful");
+  adminAuthToken: string;
+  apiAuthToken: string;
+  adminUsername: string;
+  adminPassword: string;
+  apiUsername: string;
+  apiPassword: string;
 
-    const zipPath = await zipDir(".");
+  version: number;
+
+  constructor() {
+    this.adminUsername = core.getInput("admin-username");
+    this.adminPassword = core.getInput("admin-password");
+
+    this.apiUsername = core.getInput("api-username");
+    this.apiPassword = core.getInput("api-password");
+
+    this.adminAuthEndpoint = core.getInput("admin-auth-endpoint");
+    this.apiAuthEndpoint = core.getInput("api-auth-endpoint");
+    this.deployEndpoint = core.getInput("deploy-endpoint");
+
+    this.tenantName = core.getInput("tenant-name");
+
+    this.version = parseInt(core.getInput("version"));
+  }
+
+  async authenticate() {
+    const adminCredentials = {
+      username: this.adminUsername,
+      password: this.adminPassword,
+    };
+    const apiCredentials = {
+      username: this.apiUsername,
+      password: this.apiPassword,
+    };
+    const [adminAuthResponse, apiAuthResponse] = await Promise.all([
+      axios.post<AuthResponse>(this.adminAuthEndpoint, adminCredentials),
+      axios.post<AuthResponse>(this.apiAuthEndpoint, apiCredentials),
+    ]);
+    this.adminAuthToken = adminAuthResponse.data.authorizationToken;
+    this.apiAuthToken = apiAuthResponse.data.authorizationToken;
+  }
+
+  zipDir() {
+    return new Promise<string>((resolve, reject) => {
+      const fileName = `${Math.floor(Math.random() * 10000000)}-config.zip`;
+      const outputPath = path.join(os.tmpdir(), fileName);
+      const output = fs.createWriteStream(outputPath);
+      output.on("finish", () => {
+        core.info(`Configuration zipped ${outputPath}`);
+        resolve(outputPath);
+      });
+
+      const archive = archiver.create("zip");
+      archive.pipe(output);
+      archive.directory(".", false);
+      archive.finalize();
+    });
+  }
+
+  async getLatestVersion() {
+    const versionsResponse = await axios.get<ConfigVersionResponse[]>(
+      this.versionsEndpoint
+    );
+    const versions = versionsResponse.data.map((v) => parseInt(v.version));
+    return Math.max(...versions);
+  }
+
+  async deployConfig() {
+    const latestVersion = await this.getLatestVersion();
+    const isRepair = this.version === latestVersion;
+    const endpoint = isRepair ? this.repairEndpoint : this.deployEndpoint;
+
+    const zipPath = await this.zipDir();
 
     const form = new FormData();
-    form.append("tenantName", tenantName);
+    form.append("tenantName", this.tenantName);
     form.append("zipFile", fs.createReadStream(zipPath));
 
-    core.info("Deploying...");
+    if (isRepair) {
+      form.append("version", this.version);
+    }
 
-    const deployResponse = await axios.post<DeployResponse>(deployEndpoint, form, {
+    const deployResponse = await axios.post<DeployResponse>(endpoint, form, {
       headers: form.getHeaders({
-        Authorization: authResponse.data.authorizationToken
+        Authorization: this.adminAuthEndpoint,
       }),
       maxBodyLength: 100000000,
-      maxContentLength: 100000000
+      maxContentLength: 100000000,
     });
 
     if (deployResponse.data.success) {
       core.info(deployResponse.data.logfile);
-      core.info("Deployment successful")
-      core.setOutput("hostname", deployResponse.data.hostname)
+      core.info("Deployment successful");
+      core.setOutput("hostname", deployResponse.data.hostname);
     } else {
       core.setFailed(deployResponse.data.logfile);
     }
-  } catch (error) {
-    console.log(error.response.data);
-    core.setFailed(error.message);
   }
-};
 
-const zipDir = (dirPath: string) => {
-  return new Promise<string>((resolve, reject) => {
-    const fileName = `${Math.floor(Math.random() * 10000000)}-config.zip`;
-    const outputPath = path.join(os.tmpdir(), fileName);
-    const output = fs.createWriteStream(outputPath);
-    output.on("finish", () => {
-      core.info(`Configuration zipped ${outputPath}`);
-      resolve(outputPath);
-    });
+  async run() {
+    try {
+      await this.authenticate();
+      await this.deployConfig();
+    } catch (error) {
+      console.log(error.response.data);
+      core.setFailed(error.message);
+    }
+  }
+}
 
-    const archive = archiver.create("zip");
-    archive.pipe(output);
-    archive.directory(dirPath, false);
-    archive.finalize();
-  });
-};
-
-run();
+const deploymentManager = new DeploymentManager();
+deploymentManager.run();
