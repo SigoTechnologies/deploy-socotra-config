@@ -31,6 +31,9 @@ inputs:
   deploy-endpoint:
     description: "Endpoint used for deployment"
     required: true
+  repair-endpoint:
+    description: "Endpoint used for repairing configurations"
+    required: true
 
   version:
     description: "Current configuration version"

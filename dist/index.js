@@ -43684,6 +43684,7 @@ class DeploymentManager {
         this.adminAuthEndpoint = core.getInput("admin-auth-endpoint");
         this.apiAuthEndpoint = core.getInput("api-auth-endpoint");
         this.deployEndpoint = core.getInput("deploy-endpoint");
+        this.repairEndpoint = core.getInput("repair-endpoint");
         this.versionsEndpoint = core.getInput("versions-endpoint");
         this.version = core.getInput("version");
     }
