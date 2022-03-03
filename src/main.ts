@@ -66,6 +66,7 @@ class DeploymentManager {
       password: this.adminPassword,
     };
     const apiCredentials = {
+      tenantName: this.tenantName,
       username: this.apiUsername,
       password: this.apiPassword,
     };
