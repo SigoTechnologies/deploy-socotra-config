@@ -43685,7 +43685,7 @@ class DeploymentManager {
         this.apiAuthEndpoint = core.getInput("api-auth-endpoint");
         this.deployEndpoint = core.getInput("deploy-endpoint");
         this.versionsEndpoint = core.getInput("versions-endpoint");
-        this.version = parseInt(core.getInput("version"));
+        this.version = core.getInput("version");
     }
     async authenticate() {
         const adminCredentials = {
@@ -43718,14 +43718,13 @@ class DeploymentManager {
             archive.finalize();
         });
     }
-    async getLatestVersion() {
-        const versionsResponse = await axios_1.default.get(this.versionsEndpoint);
-        const versions = versionsResponse.data.map((v) => parseInt(v.version));
-        return Math.max(...versions);
+    async getAllVersions() {
+        const res = await axios_1.default.get(this.versionsEndpoint);
+        return res.data;
     }
     async deployConfig() {
-        const latestVersion = await this.getLatestVersion();
-        const isRepair = this.version === latestVersion;
+        const versions = await this.getAllVersions();
+        const isRepair = versions.some((v) => v.version === this.version);
         const endpoint = isRepair ? this.repairEndpoint : this.deployEndpoint;
         const zipPath = await this.zipDir();
         const form = new form_data_1.default();
