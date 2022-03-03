@@ -43760,8 +43760,7 @@ class DeploymentManager {
             await this.deployConfig();
         }
         catch (error) {
-            console.log(error.response.data);
-            core.setFailed(error.message);
+            core.setFailed(error);
         }
     }
 }
