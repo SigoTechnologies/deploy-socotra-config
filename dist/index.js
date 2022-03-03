@@ -43731,7 +43731,11 @@ class DeploymentManager {
         form.append("tenantName", this.tenantName);
         form.append("zipFile", fs_1.default.createReadStream(zipPath));
         if (isRepair) {
+            core.info(`Repairing version ${this.version}`);
             form.append("version", this.version);
+        }
+        else {
+            core.info("Deploying new version");
         }
         const deployResponse = await axios_1.default.post(endpoint, form, {
             headers: form.getHeaders({
