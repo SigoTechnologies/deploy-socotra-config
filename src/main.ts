@@ -39,7 +39,7 @@ class DeploymentManager {
   apiUsername: string;
   apiPassword: string;
 
-  version: number;
+  version: string;
 
   constructor() {
     this.tenantName = core.getInput("tenant-name");
@@ -55,7 +55,7 @@ class DeploymentManager {
     this.deployEndpoint = core.getInput("deploy-endpoint");
     this.versionsEndpoint = core.getInput("versions-endpoint");
 
-    this.version = parseInt(core.getInput("version"));
+    this.version = core.getInput("version");
   }
 
   async authenticate() {
@@ -92,17 +92,14 @@ class DeploymentManager {
     });
   }
 
-  async getLatestVersion() {
-    const versionsResponse = await axios.get<ConfigVersionResponse[]>(
-      this.versionsEndpoint
-    );
-    const versions = versionsResponse.data.map((v) => parseInt(v.version));
-    return Math.max(...versions);
+  async getAllVersions() {
+    const res = await axios.get<ConfigVersionResponse[]>(this.versionsEndpoint);
+    return res.data;
   }
 
   async deployConfig() {
-    const latestVersion = await this.getLatestVersion();
-    const isRepair = this.version === latestVersion;
+    const versions = await this.getAllVersions();
+    const isRepair = versions.some((v) => v.version === this.version);
     const endpoint = isRepair ? this.repairEndpoint : this.deployEndpoint;
 
     const zipPath = await this.zipDir();
