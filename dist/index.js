@@ -43676,6 +43676,7 @@ const os_1 = __importDefault(__nccwpck_require__(2037));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 class DeploymentManager {
     constructor() {
+        this.tenantName = core.getInput("tenant-name");
         this.adminUsername = core.getInput("admin-username");
         this.adminPassword = core.getInput("admin-password");
         this.apiUsername = core.getInput("api-username");
@@ -43683,7 +43684,7 @@ class DeploymentManager {
         this.adminAuthEndpoint = core.getInput("admin-auth-endpoint");
         this.apiAuthEndpoint = core.getInput("api-auth-endpoint");
         this.deployEndpoint = core.getInput("deploy-endpoint");
-        this.tenantName = core.getInput("tenant-name");
+        this.versionsEndpoint = core.getInput("versions-endpoint");
         this.version = parseInt(core.getInput("version"));
     }
     async authenticate() {

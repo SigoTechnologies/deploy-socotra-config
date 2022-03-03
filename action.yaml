@@ -1,24 +1,43 @@
-name: 'Deploy Socotra Configuration'
-description: 'Deploy Socotra configuration to production or sandbox environments'
+name: "Deploy Socotra Configuration"
+description: "Deploy Socotra configuration to production or sandbox environments"
 inputs:
-  username:
-    description: 'Admin username'
+  tenant-name:
+    description: "Deployment target tenant name (eg. sigo-test or sigo-prod)"
     required: true
-  password:
-    description: 'Admin password'
+
+  admin-auth-endpoint:
+    description: "Endpoint used for admin authentication"
     required: true
-  auth-endpoint: 
-    description: 'Endpoint used for admin authentication'
+  admin-username:
+    description: "Admin username"
+    required: true
+  admin-password:
+    description: "Admin password"
+    required: true
+
+  api-auth-endpoint:
+    description: "Endpoint used for api authentication"
+    required: true
+  api-username:
+    description: "API username"
+    required: true
+  api-password:
+    description: "API password"
+    required: true
+
+  versions-endpoint:
+    description: "Endpoint used for fetching all current versions"
     required: true
   deploy-endpoint:
-    description: 'Endpoint used for deployment'
-    required: true    
-  tenant-name:
-    description: 'Deployment target tenant name (eg. sigo-test or sigo-prod)'
+    description: "Endpoint used for deployment"
+    required: true
+
+  version:
+    description: "Current configuration version"
     required: true
 outputs:
   hostname:
-    description: 'Hostname of deployment'
+    description: "Hostname of deployment"
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"

@@ -42,6 +42,8 @@ class DeploymentManager {
   version: number;
 
   constructor() {
+    this.tenantName = core.getInput("tenant-name");
+
     this.adminUsername = core.getInput("admin-username");
     this.adminPassword = core.getInput("admin-password");
 
@@ -51,8 +53,7 @@ class DeploymentManager {
     this.adminAuthEndpoint = core.getInput("admin-auth-endpoint");
     this.apiAuthEndpoint = core.getInput("api-auth-endpoint");
     this.deployEndpoint = core.getInput("deploy-endpoint");
-
-    this.tenantName = core.getInput("tenant-name");
+    this.versionsEndpoint = core.getInput("versions-endpoint");
 
     this.version = parseInt(core.getInput("version"));
   }
