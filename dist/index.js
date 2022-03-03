@@ -43748,7 +43748,7 @@ class DeploymentManager {
         }
         const deployResponse = await axios_1.default.post(endpoint, form, {
             headers: form.getHeaders({
-                Authorization: this.adminAuthEndpoint,
+                Authorization: this.adminAuthToken,
             }),
             maxBodyLength: 100000000,
             maxContentLength: 100000000,
