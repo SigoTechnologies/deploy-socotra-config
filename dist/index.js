@@ -43681,12 +43681,18 @@ class DeploymentManager {
         this.adminPassword = core.getInput("admin-password");
         this.apiUsername = core.getInput("api-username");
         this.apiPassword = core.getInput("api-password");
-        this.adminAuthEndpoint = core.getInput("admin-auth-endpoint");
-        this.apiAuthEndpoint = core.getInput("api-auth-endpoint");
-        this.deployEndpoint = core.getInput("deploy-endpoint");
-        this.repairEndpoint = core.getInput("repair-endpoint");
-        this.versionsEndpoint = core.getInput("versions-endpoint");
+        this.apiBase = core.getInput("api-base");
+        const authUrl = new URL("/account/authenticate", this.apiBase);
+        const deployUrl = new URL("/configuration/deploy", this.apiBase);
+        const repairUrl = new URL("/configuration/repair", this.apiBase);
+        const versionsUrl = new URL("/deployments/versions", this.apiBase);
+        this.adminAuthEndpoint = authUrl.toString();
+        this.apiAuthEndpoint = authUrl.toString();
+        this.deployEndpoint = deployUrl.toString();
+        this.repairEndpoint = repairUrl.toString();
+        this.versionsEndpoint = versionsUrl.toString();
         this.version = core.getInput("version");
+        this.configPath = core.getInput("config-path");
     }
     async authenticate() {
         core.info("Authenticating");
@@ -43719,7 +43725,7 @@ class DeploymentManager {
             });
             const archive = archiver_1.default.create("zip");
             archive.pipe(output);
-            archive.directory(".", false);
+            archive.directory(this.configPath || ".", false);
             archive.finalize();
         });
     }
