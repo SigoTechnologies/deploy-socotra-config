@@ -2,21 +2,18 @@ name: "Deploy Socotra Configuration"
 description: "Deploy Socotra configuration to production or sandbox environments"
 inputs:
   tenant-name:
-    description: "Deployment target tenant name (eg. sigo-test or sigo-prod)"
+    description: "Deployment target tenant name (eg. sigo-test, sigo-prod, or iarambula-uat)"
     required: true
 
-  admin-auth-endpoint:
-    description: "Endpoint used for admin authentication"
+  api-base:
+    description: "API base used for all requests"
     required: true
+
   admin-username:
     description: "Admin username"
     required: true
   admin-password:
     description: "Admin password"
-    required: true
-
-  api-auth-endpoint:
-    description: "Endpoint used for api authentication"
     required: true
   api-username:
     description: "API username"
@@ -25,18 +22,11 @@ inputs:
     description: "API password"
     required: true
 
-  versions-endpoint:
-    description: "Endpoint used for fetching all current versions"
-    required: true
-  deploy-endpoint:
-    description: "Endpoint used for deployment"
-    required: true
-  repair-endpoint:
-    description: "Endpoint used for repairing configurations"
-    required: true
-
   version:
     description: "Current configuration version"
+    required: true
+  config-path:
+    description: "Socotra configuration path"
     required: true
 outputs:
   hostname:
