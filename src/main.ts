@@ -102,7 +102,7 @@ class DeploymentManager {
 
       const archive = archiver.create("zip");
       archive.pipe(output);
-      archive.directory(this.configPath, false);
+      archive.directory(this.configPath || ".", false);
       archive.finalize();
     });
   }

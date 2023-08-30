@@ -27,7 +27,7 @@ inputs:
     required: true
   config-path:
     description: "Socotra configuration path"
-    required: true
+    required: false
 outputs:
   hostname:
     description: "Hostname of deployment"
